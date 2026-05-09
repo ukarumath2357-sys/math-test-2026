@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>正負の数・10ミニッツ・バトル</title>
+
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f9; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; padding: 15px; box-sizing: border-box; }
+        
+        /* スタート画面：集中力を高めるブルーグラデーション */
+        #name-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .name-box { background: white; padding: 35px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 85%; text-align: center; }
+        .title-main { font-size: 22px; font-weight: bold; color: #333; margin-bottom: 20px; }
+        .name-input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 20px; text-align: center; outline: none; }
+        .start-btn { width: 100%; background: #007aff; color: white; font-size: 20px; font-weight: bold; padding: 18px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(0,122,255,0.3); }
+
+        /* 問題表示エリア */
+        .question-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 8px solid #007aff; text-align: center; }
+        #timer-display { font-size: 28px; font-weight: bold; color: #ff3b30; font-family: 'Courier New', monospace; }
+        #q-text { font-size: 32px; font-weight: bold; margin: 20px 0; color: #2d3436; }
+
+        /* キーパッド：スマホでの押しやすさを重視 */
+        .answer-area { width: 100%; min-height: 70px; background: #fff; border: 2px solid #007aff; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: bold; color: #007aff; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+        .btn { padding: 20px 0; font-size: 26px; font-weight: bold; border: none; border-radius: 12px; background: white; box-shadow: 0 3px 0 #ccc; cursor: pointer; }
+        .btn:active { transform: translateY(3px); box-shadow: none; }
+        .symbol { background: #e5e5ea; }
+        .submit { background: #34c759; color: white; grid-column: span 2; box-shadow: 0 3px 0 #248a3d; }
+        .btn-reset { background: #ff9500; color: white; box-shadow: 0 3px 0 #b26a00; }
+
+        /* フィードバック演出 */
+        #feedback-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* 結果表示 */
+        #result-screen { display: none; text-align: center; padding: 30px; width: 100%; box-sizing: border-box; }
+        .ss-badge { display: inline-block; padding: 15px 40px; border-radius: 50px; background: #007aff; color: white; font-weight: bold; font-size: 36px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div id="name-screen">
+    <div class="name-box">
+        <div class="title-main">正負の数・10本勝負</div>
+        <input type="text" id="user-name" class="name-input" placeholder="名前を入力" autofocus>
+        <button class="start-btn" onclick="startTest()">ミッション開始！ 🚀</button>
+    </div>
+</div>
+
+<div id="feedback-overlay">
+    <div id="feedback-text" style="font-size: 50px; font-weight: bold;"></div>
+    <div style="font-size: 18px; color: #888; margin-top: 15px;">全国の正答率データ</div>
+    <div id="avg-rate-display" style="font-size: 60px; font-weight: bold; color: #333;">0%</div>
+    <button id="next-btn" class="start-btn" style="width: 250px; display:none; margin-top:40px; background:#333;" onclick="closeFeedback()">次の問題へ</button>
+</div>
+
+<div id="test-wrapper" class="container" style="display:none;">
+    <div class="question-container">
+        <div id="q-number" style="color: #007aff; font-weight: bold;">Quest 1 / 10</div>
+        <div id="q-text"></div>
+        <div id="timer-display">60</div>
+    </div>
+
+    <div id="user-input-area" class="answer-area"></div>
+    
+    <div class="grid">
+        <button class="btn" onclick="add('7')">7</button><button class="btn" onclick="add('8')">8</button><button class="btn" onclick="add('9')">9</button>
+        <button class="btn" onclick="add('4')">4</button><button class="btn" onclick="add('5')">5</button><button class="btn" onclick="add('6')">6</button>
+        <button class="btn" onclick="add('1')">1</button><button class="btn" onclick="add('2')">2</button><button class="btn" onclick="add('3')">3</button>
+        <button class="btn symbol" onclick="add('-')">－</button><button class="btn" onclick="add('0')">0</button><button class="btn symbol" onclick="backspace()">⬅</button>
+        <button class="btn btn-reset" onclick="clearAll()">消去</button>
+        <button class="btn submit" onclick="handleAnswer()">決定</button>
+    </div>
+</div>
+
+<div id="result-screen">
+    <div class="title-main"><span id="final-name"></span> さんの分析結果</div>
+    <div style="font-size: 50px; font-weight: bold;"><span id="res-score">0</span> <span style="font-size: 20px;">/ 10問</span></div>
+    <div class="ss-badge">偏差値：<span id="final-ss">--</span></div>
+    <div id="offer" style="display:none; background:#fff5f5; padding:20px; border-radius:15px; border: 2px solid #ff3b30;">
+        <p style="font-weight:bold; color:#ff3b30;">【要修正】符号ミスが発生中！</p>
+        <p style="font-size:14px;">夏期講習の10日間で、この「つまずき」をゼロにできます。</p>
+    </div>
+</div>
+
+<script>
+    const GAS_URL = "YOUR_GAS_URL"; 
+    let currentIdx = 0, userName = "", timeLeft = 60, score = 0, timerInterval = null, startTime;
+
+    // 10分間で特性を判別する「正負の数」厳選10問
+    const questions = [
+        {q: "-7 + 4", a: "-3"},         // 1. 異符号の加法（基礎）
+        {q: "2 - 9", a: "-7"},          // 2. 引けない時の減法
+        {q: "-5 - 3", a: "-8"},         // 3. 同符号の加法
+        {q: "-8 - (-5)", a: "-3"},      // 4. カッコの外し方
+        {q: "(-4) × 6", a: "-24"},      // 5. 乗法（基礎）
+        {q: "(-3) × (-7)", a: "21"},    // 6. 負×負のルール
+        {q: "(-2)³", a: "-8"},          // 7. 累乗（カッコあり）
+        {q: "-3²", a: "-9"},            // 8. 累乗（カッコなし・最重要ミスポイント）
+        {q: "8 + (-2) × 5", a: "-2"},   // 9. 四則混合（優先順位）
+        {q: "-15 ÷ (-3) - 9", a: "-4"}  // 10. 四則混合（負の数の割り算含む）
+    ];
+
+    function startTest() {
+        userName = document.getElementById('user-name').value.trim();
+        if(!userName) return alert("名前を教えてね！");
+        document.getElementById('name-screen').style.display = "none";
+        document.getElementById('test-wrapper').style.display = "flex";
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        startTime = Date.now();
+        const q = questions[currentIdx];
+        document.getElementById('q-number').innerText = `Quest ${currentIdx + 1} / 10`;
+        document.getElementById('q-text').innerText = `${q.q} = ?`;
+        clearAll();
+        startTimer();
+    }
+
+    function startTimer() {
+        timeLeft = 60;
+        document.getElementById('timer-display').innerText = timeLeft;
+        if(timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer-display').innerText = timeLeft;
+            if(timeLeft <= 0) handleAnswer(true);
+        }, 1000);
+    }
+
+    function add(v) { document.getElementById('user-input-area').innerText += v; }
+    function backspace() { 
+        let t = document.getElementById('user-input-area').innerText;
+        document.getElementById('user-input-area').innerText = t.slice(0, -1);
+    }
+    function clearAll() { document.getElementById('user-input-area').innerText = ""; }
+
+    function handleAnswer(isTimeout = false) {
+        if(timerInterval) clearInterval(timerInterval);
+        const timeTaken = (Date.now() - startTime) / 1000;
+        const userAns = document.getElementById('user-input-area').innerText.trim();
+        const isCorrect = !isTimeout && (userAns === questions[currentIdx].a);
+        if(isCorrect) score++;
+
+        const overlay = document.getElementById('feedback-overlay');
+        document.getElementById('feedback-text').innerText = isCorrect ? "正解！" : "ミス！";
+        document.getElementById('feedback-text').style.color = isCorrect ? "#34c759" : "#ff3b30";
+        overlay.style.display = "flex";
+
+        // ダミー平均正解率（実際はGASから取得）
+        let dummyRate = isCorrect ? 68 : 35;
+        document.getElementById('avg-rate-display').innerText = dummyRate + "%";
+        document.getElementById('next-btn').style.display = "block";
+    }
+
+    function closeFeedback() {
+        document.getElementById('feedback-overlay').style.display = "none";
+        document.getElementById('next-btn').style.display = "none";
+        currentIdx++;
+        if(currentIdx < 10) loadQuestion(); else showResult();
+    }
+
+    function showResult() {
+        document.getElementById('test-wrapper').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        document.getElementById('final-name').innerText = userName;
+        document.getElementById('res-score').innerText = score;
+        let ss = Math.floor(score * 4 + 30); // 簡易偏差値
+        document.getElementById('final-ss').innerText = ss;
+        if(ss < 60) document.getElementById('offer').style.display = 'block';
+    }
+</script>
+</body>
+</html>
