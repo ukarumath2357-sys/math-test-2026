@@ -1,176 +1,1388 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
+    <!-- 01. 基本設定 -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>正負の数・10ミニッツ・バトル</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>夏期講習：数学クイズBATTLE🌸</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f7f9; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; padding: 15px; box-sizing: border-box; }
-        
-        /* スタート画面：集中力を高めるブルーグラデーション */
-        #name-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .name-box { background: white; padding: 35px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 85%; text-align: center; }
-        .title-main { font-size: 22px; font-weight: bold; color: #333; margin-bottom: 20px; }
-        .name-input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 12px; margin-bottom: 20px; text-align: center; outline: none; }
-        .start-btn { width: 100%; background: #007aff; color: white; font-size: 20px; font-weight: bold; padding: 18px; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 5px 15px rgba(0,122,255,0.3); }
+        /* 02. 色設定 */
+        :root {
+            --soft-blue: #a2d2ff;
+            --soft-pink: #ffafcc;
+            --soft-yellow: #fdfdbd;
+            --soft-green: #b9fbc0;
+            --white: #ffffff;
+            --text: #2f3542;
+        }
 
-        /* 問題表示エリア */
-        .question-container { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 8px solid #007aff; text-align: center; }
-        #timer-display { font-size: 28px; font-weight: bold; color: #ff3b30; font-family: 'Courier New', monospace; }
-        #q-text { font-size: 32px; font-weight: bold; margin: 20px 0; color: #2d3436; }
+        /* 03. 全体レイアウト */
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #f0f7ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            color: var(--text);
+            -webkit-text-size-adjust: 100%;
+        }
 
-        /* キーパッド：スマホでの押しやすさを重視 */
-        .answer-area { width: 100%; min-height: 70px; background: #fff; border: 2px solid #007aff; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: bold; color: #007aff; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
-        .btn { padding: 20px 0; font-size: 26px; font-weight: bold; border: none; border-radius: 12px; background: white; box-shadow: 0 3px 0 #ccc; cursor: pointer; }
-        .btn:active { transform: translateY(3px); box-shadow: none; }
-        .symbol { background: #e5e5ea; }
-        .submit { background: #34c759; color: white; grid-column: span 2; box-shadow: 0 3px 0 #248a3d; }
-        .btn-reset { background: #ff9500; color: white; box-shadow: 0 3px 0 #b26a00; }
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--white);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
 
-        /* フィードバック演出 */
-        #feedback-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
+        .screen {
+            display: none;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
 
-        /* 結果表示 */
-        #result-screen { display: none; text-align: center; padding: 30px; width: 100%; box-sizing: border-box; }
-        .ss-badge { display: inline-block; padding: 15px 40px; border-radius: 50px; background: #007aff; color: white; font-weight: bold; font-size: 36px; margin: 20px 0; }
+        .active {
+            display: flex;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* 04. 共通ボタン */
+        .btn-round {
+            background: var(--soft-pink);
+            color: white;
+            padding: 18px 40px;
+            font-size: 22px;
+            font-weight: 800;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #ff8fab;
+            transition: 0.1s;
+            margin-top: 20px;
+        }
+
+        .btn-round:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #ff8fab;
+        }
+
+        /* 05. スタート画面 */
+        .title-area {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--soft-blue);
+            text-shadow: 2px 2px var(--white);
+            margin-bottom: 30px;
+            line-height: 1.2;
+        }
+
+        .name-input {
+            width: 85%;
+            padding: 15px;
+            font-size: 20px;
+            border: 4px solid var(--soft-blue);
+            border-radius: 20px;
+            text-align: center;
+            outline: none;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        /* 06. 問題画面 */
+        .header-panel {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .q-tag {
+            background: var(--soft-blue);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .timer-container {
+            width: 100%;
+            height: 12px;
+            background: #eee;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .timer-fill {
+            width: 100%;
+            height: 100%;
+            background: var(--soft-pink);
+            transition: width 0.1s linear;
+        }
+
+        .ranking-bar {
+            width: 100%;
+            background: var(--soft-yellow);
+            padding: 8px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-around;
+            box-sizing: border-box;
+        }
+
+        .question-box {
+            width: 100%;
+            background: #fdfdfd;
+            border: 3px solid #eef2f3;
+            border-radius: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .q-text {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+.question-top-area{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:12px;
+}
+
+.correct-rate-circle{
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#ffd166,#ff9f1c);
+    color:white;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    flex-shrink:0;
+}
+
+.rate-label{
+    font-size:11px;
+    font-weight:700;
+    line-height:1;
+}
+
+#national-rate{
+    font-size:20px;
+    font-weight:900;
+    line-height:1.1;
+}
+        /* 07. 回答表示エリア */
+        .answer-display {
+            width: 100%;
+            min-height: 70px;
+            background: #fff;
+            border: 3px solid var(--soft-blue);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-family: 'Times New Roman', serif;
+            box-sizing: border-box;
+            padding: 8px;
+            flex-wrap: wrap;
+        }
+
+        #user-input-area {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            min-width: 50px;
+            min-height: 45px;
+        }
+
+        /* 08. 電卓ボタン */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            background: #eef5ff;
+            padding: 10px;
+            border-radius: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            padding: 12px 0;
+            font-size: 22px;
+            font-weight: 800;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-num {
+            background: #ffffff;
+            color: var(--text);
+            box-shadow: 0 3px 0 #d0dbe9;
+        }
+
+        .symbol {
+            background: #d0e7ff;
+            color: var(--text);
+            box-shadow: 0 3px 0 #aecae9;
+        }
+
+        .submit {
+            background: var(--soft-pink);
+            color: white;
+            box-shadow: 0 4px 0 #ff8fab;
+        }
+
+        .btn-reset {
+            background: #ced6e0;
+            color: white;
+            box-shadow: 0 3px 0 #a4b0be;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        /* 09. 電卓アイコン */
+        .frac-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .box {
+            width: 10px;
+            height: 10px;
+            border: 2px solid #333;
+        }
+
+        .line {
+            width: 16px;
+            height: 2px;
+            background: #333;
+            margin: 1px 0;
+        }
+
+        /* 10. 数式表示：分数 */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            font-size: 0.85em;
+            line-height: 1.1;
+        }
+
+        .frac .num {
+            border-bottom: 2px solid #333;
+            width: 100%;
+            text-align: center;
+            outline: none;
+            min-width: 30px;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .frac .den {
+            width: 100%;
+            text-align: center;
+            outline: none;
+            min-width: 30px;
+            min-height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 11. 数式表示：ルート */
+        .root-wrap {
+            display: inline-flex;
+            align-items: flex-start;
+            margin: 0 3px;
+            vertical-align: middle;
+        }
+
+        .root-symbol {
+            font-size: 1.25em;
+            line-height: 1;
+            margin-right: -2px;
+            transform: translateY(7px);
+        }
+
+        .root-content {
+            border-top: 2px solid #333;
+            min-width: 28px;
+            min-height: 34px;
+            padding: 0 4px;
+            outline: none;
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 12. 数式表示：累乗・変数・入力中 */
+        sup {
+            font-size: 0.6em;
+            vertical-align: super;
+        }
+
+        .math-var {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .active-in {
+            background: #fffde7;
+            outline: 2px solid var(--soft-pink);
+            border-radius: 4px;
+        }
+
+        /* 13. 正解・不正解演出 */
+        .overlay-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.9);
+            font-size: 80px;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        /* 14. 結果画面 */
+        .result-card {
+            background: var(--soft-blue);
+            color: white;
+            padding: 20px;
+            border-radius: 25px;
+            width: 100%;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        .title-badge {
+            background: var(--soft-yellow);
+            color: var(--text);
+            padding: 10px 30px;
+            border-radius: 40px;
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            display: inline-block;
+            box-shadow: 0 4px 0 #e6e6a0;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .data-item {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 15px;
+        }
     </style>
 </head>
+
 <body>
+<div class="app-container">
+ <!-- 15. スタート画面 -->
+<div id="screen-start" class="screen active">
+    <div class="title-area">🌸 夏期講習 🌸<br>数学クイズ大会</div>
 
-<div id="name-screen">
-    <div class="name-box">
-        <div class="title-main">正負の数・10本勝負</div>
-        <input type="text" id="user-name" class="name-input" placeholder="名前を入力" autofocus>
-        <button class="start-btn" onclick="startTest()">ミッション開始！ 🚀</button>
+    <input type="text" id="user-fullname" class="name-input" placeholder="フルネーム">
+
+    <input type="text" id="user-nickname" class="name-input" placeholder="ニックネーム" style="margin-top:15px;">
+
+    <div style="font-size:12px; color:#666; margin-top:6px;">
+        ※ニックネームはランキング表示に使用されます
+    </div>
+
+    <select id="user-grade" class="name-input" style="margin-top:15px; width:90%;">
+        <option value="中2">中学2年生</option>
+        <option value="中3">中学3年生</option>
+    </select>
+
+   <button class="btn-round" onclick="goLessonSelect()">単元を選ぶ 🚀</button>
+</div>
+
+<!-- 15-2. 単元選択画面 -->
+<div id="screen-lesson-select" class="screen">
+    <div class="title-area" style="font-size:24px;">今日の単元を選ぼう</div>
+
+    <button class="btn-round" onclick="selectLesson('math','正負の数','正負の数')">
+        正負の数
+    </button>
+
+    <button class="btn-round" onclick="selectLesson('math','方程式','方程式')" style="background:#ced6e0; box-shadow:0 6px 0 #a4b0be;" disabled>
+        方程式（近日公開）
+    </button>
+
+    <button class="btn-round" onclick="showScreen('screen-start')" style="background:#2f3542; box-shadow:0 6px 0 #111;">
+        戻る
+    </button>
+</div>
+
+<!-- 16. カウントダウン画面 -->
+<div id="screen-countdown" class="screen">
+    <div id="countdown-num" style="font-size: 120px; color: var(--soft-blue); font-weight: 900;">3</div>
+</div>
+
+    <!-- 17. 問題画面 -->
+    <div id="screen-question" class="screen">
+       <div class="question-top-area">
+    <div>
+        <div id="q-number" class="q-tag">第 1 問</div>
+        <div id="combo-count" style="color:var(--soft-pink); font-weight:900; margin-top:6px;">0連勝！</div>
+    </div>
+
+    <div class="correct-rate-circle">
+        <div class="rate-label">全国正解率</div>
+        <div id="national-rate">68%</div>
     </div>
 </div>
 
-<div id="feedback-overlay">
-    <div id="feedback-text" style="font-size: 50px; font-weight: bold;"></div>
-    <div style="font-size: 18px; color: #888; margin-top: 15px;">全国の正答率データ</div>
-    <div id="avg-rate-display" style="font-size: 60px; font-weight: bold; color: #333;">0%</div>
-    <button id="next-btn" class="start-btn" style="width: 250px; display:none; margin-top:40px; background:#333;" onclick="closeFeedback()">次の問題へ</button>
-</div>
+        <div class="timer-container"><div id="timer-bar" class="timer-fill"></div></div>
+        
+       
 
-<div id="test-wrapper" class="container" style="display:none;">
-    <div class="question-container">
-        <div id="q-number" style="color: #007aff; font-weight: bold;">Quest 1 / 10</div>
-        <div id="q-text"></div>
-        <div id="timer-display">60</div>
+        <div class="question-box"><div id="q-text" class="q-text"></div></div>
+
+        <div id="math-ans-area" class="answer-display">
+            <span id="ans-prefix" style="font-size: 0.8em; margin-right:5px;"></span>
+            <div id="user-input-area"></div>
+        </div>
+
+        <!-- 18. 電卓ボタン -->
+        <div id="math-grid" class="grid">
+            <button class="btn symbol" style="font-size:18px;" onclick="moveNext()">➜次へ</button>
+            <button class="btn symbol" onclick="addFrac()"><div class="frac-icon"><div class="box"></div><div class="line"></div><div class="box"></div></div></button>
+            <button class="btn symbol" onclick="add('(')">(</button>
+            <button class="btn symbol" onclick="add(')')">)</button>
+            <button class="btn symbol" onclick="addPower()">x²</button>
+            <button class="btn symbol math-var" onclick="addVar('π')">π</button>
+            <button class="btn symbol" onclick="addRoot()">√</button>
+
+            <button class="btn btn-num" onclick="add('7')">7</button>
+            <button class="btn btn-num" onclick="add('8')">8</button>
+            <button class="btn btn-num" onclick="add('9')">9</button>
+            <button class="btn symbol math-var" onclick="addVar('x')">x</button>
+            <button class="btn symbol math-var" onclick="addVar('y')">y</button>
+
+            <button class="btn btn-num" onclick="add('4')">4</button>
+            <button class="btn btn-num" onclick="add('5')">5</button>
+            <button class="btn btn-num" onclick="add('6')">6</button>
+            <button class="btn symbol" onclick="add('=')">＝</button>
+            <button class="btn symbol" onclick="add(',')">，</button>
+
+            <button class="btn btn-num" onclick="add('1')">1</button>
+            <button class="btn btn-num" onclick="add('2')">2</button>
+            <button class="btn btn-num" onclick="add('3')">3</button>
+            <button class="btn symbol" onclick="add('+')">＋</button>
+            <button class="btn symbol" onclick="add('-')">－</button>
+
+            <button class="btn btn-num" onclick="add('0')">0</button>
+            <button class="btn btn-num" onclick="add('.')">.</button>
+            <button class="btn symbol" onclick="backspace()">⬅</button>
+            <button class="btn btn-reset" onclick="clearAll()">リセット</button>
+            <button class="btn submit" onclick="handleAnswer()">回答</button>
+        </div>
     </div>
 
-    <div id="user-input-area" class="answer-area"></div>
-    
-    <div class="grid">
-        <button class="btn" onclick="add('7')">7</button><button class="btn" onclick="add('8')">8</button><button class="btn" onclick="add('9')">9</button>
-        <button class="btn" onclick="add('4')">4</button><button class="btn" onclick="add('5')">5</button><button class="btn" onclick="add('6')">6</button>
-        <button class="btn" onclick="add('1')">1</button><button class="btn" onclick="add('2')">2</button><button class="btn" onclick="add('3')">3</button>
-        <button class="btn symbol" onclick="add('-')">－</button><button class="btn" onclick="add('0')">0</button><button class="btn symbol" onclick="backspace()">⬅</button>
-        <button class="btn btn-reset" onclick="clearAll()">消去</button>
-        <button class="btn submit" onclick="handleAnswer()">決定</button>
+<!-- 19. 結果画面 -->
+<div id="screen-result" class="screen">
+    <h2 style="margin:0;">診断レポート</h2>
+    <div class="title-badge" id="res-title">称号獲得！</div>
+
+    <div class="result-card">
+        <div class="data-grid">
+            <div class="data-item">
+                <span>正答率</span><br>
+                <b id="res-rate">0%</b>
+            </div>
+
+            <div class="data-item">
+                <span>平均時間</span><br>
+                <b id="res-time">0.0s</b>
+            </div>
+
+            <div class="data-item">
+                <span>最大連勝</span><br>
+                <b id="res-combo">0</b>
+            </div>
+
+            <div class="data-item">
+                <span>苦手単元</span><br>
+                <b id="res-weak" style="font-size:12px;">なし</b>
+            </div>
+        </div>
+
+        <div id="ai-comment"
+             style="margin-top:15px; font-size:14px; background:rgba(255,255,255,0.2); padding:10px; border-radius:10px; text-align:left;">
+        </div>
     </div>
+
+    <div style="width:100%; background:var(--soft-yellow); padding:15px; border-radius:20px; box-sizing:border-box; margin-top:15px;">
+        <div style="font-weight:900;">
+            🏆 今回の獲得ポイント：
+            <span id="final-rank">0</span>pt
+        </div>
+
+        <div id="ranking-list"
+             style="font-size:14px; margin-top:10px; text-align:left;">
+        </div>
+
+        <button class="btn-round"
+                onclick="showRanking()"
+                style="background:var(--soft-blue); box-shadow:0 6px 0 #7fb7e8;">
+            🏆 ランキングを見る
+        </button>
+    </div>
+
+    <!-- 46. 追加モード選択ボタン -->
+    <button class="btn-round" onclick="switchMode('bonus')">
+        🌟 応用問題に挑戦！
+    </button>
+
+    <button class="btn-round"
+            onclick="startFlashCards()"
+            style="background:var(--soft-green); box-shadow:0 6px 0 #8fd99a;">
+        ⚡ フラッシュカードを見る！
+    </button>
+
+    <button class="btn-round"
+            style="background:#2f3542; box-shadow:0 6px 0 #111;"
+            onclick="location.reload()">
+        もう一度遊ぶ
+    </button>
 </div>
 
-<div id="result-screen">
-    <div class="title-main"><span id="final-name"></span> さんの分析結果</div>
-    <div style="font-size: 50px; font-weight: bold;"><span id="res-score">0</span> <span style="font-size: 20px;">/ 10問</span></div>
-    <div class="ss-badge">偏差値：<span id="final-ss">--</span></div>
-    <div id="offer" style="display:none; background:#fff5f5; padding:20px; border-radius:15px; border: 2px solid #ff3b30;">
-        <p style="font-weight:bold; color:#ff3b30;">【要修正】符号ミスが発生中！</p>
-        <p style="font-size:14px;">夏期講習の10日間で、この「つまずき」をゼロにできます。</p>
+<!-- 19-2. ランキング画面 -->
+<div id="screen-ranking" class="screen">
+    <h2 style="margin:0 0 15px;">
+        🏆 ランキング TOP30
+    </h2>
+
+    <div class="result-card"
+         style="background:var(--soft-yellow); color:var(--text);">
+
+        <div id="ranking-full-list"
+             style="font-size:15px; text-align:left; line-height:1.8;">
+            読み込み中...
+        </div>
     </div>
+
+    <button class="btn-round"
+            onclick="showScreen('screen-result')"
+            style="background:#2f3542; box-shadow:0 6px 0 #111;">
+        結果画面へ戻る
+    </button>
 </div>
 
+<!-- 20. 正解・不正解オーバーレイ -->
+<div id="overlay-effect" class="overlay-effect"></div>
+
+<!-- 50. フラッシュカード画面 -->
+<div id="screen-flash" class="screen">
+    <div class="title-area"
+         style="font-size:24px; margin-bottom:15px;">
+        ⚡ フラッシュカード
+    </div>
+
+    <div id="flash-count"
+         class="q-tag"
+         style="margin-bottom:15px;">
+        1 / 5
+    </div>
+
+    <div class="result-card"
+         style="background:var(--soft-yellow); color:var(--text);">
+
+        <div id="flash-card-text"
+             style="background:white; border-radius:18px; padding:24px; font-size:24px; line-height:1.8; font-weight:700;">
+        </div>
+    </div>
+
+    <button class="btn-round"
+            onclick="nextFlashCard()"
+            style="background:var(--soft-blue); box-shadow:0 6px 0 #7fb7e8;">
+        次の要点へ
+    </button>
+
+    <button class="btn-round"
+            onclick="showScreen('screen-result')"
+            style="background:#2f3542; box-shadow:0 6px 0 #111;">
+        結果画面へ戻る
+    </button>
+</div>
 <script>
-    const GAS_URL = "YOUR_GAS_URL"; 
-    let currentIdx = 0, userName = "", timeLeft = 60, score = 0, timerInterval = null, startTime;
+/* 22. GAS設定 */
+const GAS_URL = "https://script.google.com/macros/s/AKfycby0f6ahYh1bthsZb0qDL6m9V34w3_v2EpqWKT52EYE7-PAHAQZp6vtTl43Q7f_wIVoX/exec";
+/* 46. 3モード問題データ */
+const masterData = {
+    normal: [],
+    bonus: [],
+    flash: []
+};
+/* 47. モード管理 */
+let gameState = {
+    mode: "normal",
+    index: 0
+};
 
-    // 10分間で特性を判別する「正負の数」厳選10問
-    const questions = [
-        {q: "-7 + 4", a: "-3"},         // 1. 異符号の加法（基礎）
-        {q: "2 - 9", a: "-7"},          // 2. 引けない時の減法
-        {q: "-5 - 3", a: "-8"},         // 3. 同符号の加法
-        {q: "-8 - (-5)", a: "-3"},      // 4. カッコの外し方
-        {q: "(-4) × 6", a: "-24"},      // 5. 乗法（基礎）
-        {q: "(-3) × (-7)", a: "21"},    // 6. 負×負のルール
-        {q: "(-2)³", a: "-8"},          // 7. 累乗（カッコあり）
-        {q: "-3²", a: "-9"},            // 8. 累乗（カッコなし・最重要ミスポイント）
-        {q: "8 + (-2) × 5", a: "-2"},   // 9. 四則混合（優先順位）
-        {q: "-15 ÷ (-3) - 9", a: "-4"}  // 10. 四則混合（負の数の割り算含む）
-    ];
+/* 48. モード別結果保存 */
+let allResults = {
+    normal: [],
+    bonus: [],
+    flash: []
+};
 
-    function startTest() {
-        userName = document.getElementById('user-name').value.trim();
-        if(!userName) return alert("名前を教えてね！");
-        document.getElementById('name-screen').style.display = "none";
-        document.getElementById('test-wrapper').style.display = "flex";
-        loadQuestion();
+/* 50. フラッシュカードデータ */
+let flashCardData = [];
+
+let flashState = {
+    index: 0,
+    viewed: []
+};
+/* 23. 状態管理 */
+let currentIdx = 0;
+let userStats = {
+    fullname: "",
+    nickname: "",
+    grade: "",
+    answers: [],
+    totalCorrect: 0,
+    combo: 0,
+    maxCombo: 0,
+    totalChanges: 0,
+    backspaceCount: 0,
+
+    // ポイント管理
+    totalPoint: 0,
+    lastGainedPoint: 0
+};
+let questionStartTime;
+let timerInterval;
+let lastActive = null;
+const TIME_LIMIT = 60;
+const FLASH_TIME_LIMIT = 5;
+
+/* 23-2. 現在選択中の単元 */
+let currentSubject = "math";
+let currentLecture = "正負の数";
+let currentUnit = "正負の数";
+
+/* 24. スタート処理 */
+async function startCountdown() {
+    userStats.fullname = document.getElementById('user-fullname').value.trim();
+    userStats.nickname = document.getElementById('user-nickname').value.trim();
+    userStats.grade = document.getElementById('user-grade').value;
+
+    if (!userStats.fullname || !userStats.nickname) {
+        alert("フルネームとニックネームを入れてね！");
+        return;
     }
 
-    function loadQuestion() {
-        startTime = Date.now();
-        const q = questions[currentIdx];
-        document.getElementById('q-number').innerText = `Quest ${currentIdx + 1} / 10`;
-        document.getElementById('q-text').innerText = `${q.q} = ?`;
-        clearAll();
-        startTimer();
+    try {
+        // GASから選択単元の通常問題を取得
+        const params = new URLSearchParams({
+            mode: "questions",
+            subject: currentSubject,
+            lecture: currentLecture,
+            unit: currentUnit,
+            quizMode: "normal"
+        });
+
+        const res = await fetch(`${GAS_URL}?${params.toString()}`);
+        const data = await res.json();
+
+        const questions = data.questions || [];
+
+        if (questions.length === 0) {
+            alert("問題データが見つかりませんでした");
+            return;
+        }
+
+        // GAS取得問題をセット
+        masterData.normal = questions;
+
+    } catch (e) {
+        console.error(e);
+        alert("問題取得エラー");
+        return;
     }
 
-    function startTimer() {
-        timeLeft = 60;
-        document.getElementById('timer-display').innerText = timeLeft;
-        if(timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer-display').innerText = timeLeft;
-            if(timeLeft <= 0) handleAnswer(true);
-        }, 1000);
+    showScreen('screen-countdown');
+
+    let c = 3;
+
+    const timer = setInterval(() => {
+        c--;
+
+        if (c === 0) {
+            document.getElementById('countdown-num').innerText = "GO!!";
+        } else if (c < 0) {
+            clearInterval(timer);
+            startQuiz();
+        } else {
+            document.getElementById('countdown-num').innerText = c;
+        }
+
+    }, 1000);
+}
+/* 24-2. 単元選択画面へ */
+function goLessonSelect() {
+    const fullname = document.getElementById('user-fullname').value.trim();
+    const nickname = document.getElementById('user-nickname').value.trim();
+
+    if (!fullname || !nickname) {
+        alert("フルネームとニックネームを入れてね！");
+        return;
     }
 
-    function add(v) { document.getElementById('user-input-area').innerText += v; }
-    function backspace() { 
-        let t = document.getElementById('user-input-area').innerText;
-        document.getElementById('user-input-area').innerText = t.slice(0, -1);
+    showScreen('screen-lesson-select');
+}
+
+/* 24-3. 単元選択 */
+function selectLesson(subject, lecture, unit) {
+    currentSubject = subject;
+    currentLecture = lecture;
+    currentUnit = unit;
+
+    currentIdx = 0;
+    gameState.mode = "normal";
+
+    allResults.normal = [];
+
+    userStats.totalPoint = 0;
+    userStats.lastGainedPoint = 0;
+
+    startCountdown();
+}
+/* 25. クイズ開始 */
+function startQuiz() {
+    showScreen('screen-question');
+    loadQuestion();
+}
+
+/* 26. 問題読み込み */
+function loadQuestion() {
+    const activeQuestions = masterData[gameState.mode];
+
+    if (!activeQuestions || activeQuestions.length === 0) {
+        alert("問題データがありません");
+        return;
     }
-    function clearAll() { document.getElementById('user-input-area').innerText = ""; }
 
-    function handleAnswer(isTimeout = false) {
-        if(timerInterval) clearInterval(timerInterval);
-        const timeTaken = (Date.now() - startTime) / 1000;
-        const userAns = document.getElementById('user-input-area').innerText.trim();
-        const isCorrect = !isTimeout && (userAns === questions[currentIdx].a);
-        if(isCorrect) score++;
+    const q = activeQuestions[currentIdx];
 
-        const overlay = document.getElementById('feedback-overlay');
-        document.getElementById('feedback-text').innerText = isCorrect ? "正解！" : "ミス！";
-        document.getElementById('feedback-text').style.color = isCorrect ? "#34c759" : "#ff3b30";
-        overlay.style.display = "flex";
+    document.getElementById('q-number').innerText =
+        `第 ${currentIdx + 1} 問 / ${activeQuestions.length}`;
 
-        // ダミー平均正解率（実際はGASから取得）
-        let dummyRate = isCorrect ? 68 : 35;
-        document.getElementById('avg-rate-display').innerText = dummyRate + "%";
-        document.getElementById('next-btn').style.display = "block";
+    document.getElementById('q-text').innerText = q.q || "";
+    document.getElementById('ans-prefix').innerText = q.prefix || "";
+
+    clearAll();
+    questionStartTime = Date.now();
+
+    const limit =
+        gameState.mode === "flash"
+            ? FLASH_TIME_LIMIT
+            : TIME_LIMIT;
+
+    startTimer(limit);
+
+    getNationalCorrectRate(q.id);
+}
+/* 27. タイマー */
+function startTimer(seconds = TIME_LIMIT) {
+    let r = seconds;
+    document.getElementById('timer-bar').style.width = "100%";
+
+    if (timerInterval) clearInterval(timerInterval);
+
+    timerInterval = setInterval(() => {
+        r -= 0.1;
+        document.getElementById('timer-bar').style.width = (r / seconds) * 100 + "%";
+
+        if (r <= 0) {
+            clearInterval(timerInterval);
+            handleAnswer(true);
+        }
+    }, 100);
+}
+
+/* 28. 数式入力：通常文字 */
+function add(v) {
+    const target = lastActive || document.getElementById('user-input-area');
+    target.appendChild(document.createTextNode(v));
+    userStats.totalChanges++;
+}
+
+/* 29. 数式入力：変数 */
+function addVar(v) {
+    const s = document.createElement('span');
+    s.className = "math-var";
+    s.innerText = v;
+
+    const target = lastActive || document.getElementById('user-input-area');
+    target.appendChild(s);
+    userStats.totalChanges++;
+}
+
+/* 30. 数式入力：累乗 */
+function addPower() {
+    const s = document.createElement('sup');
+    s.innerText = '2';
+
+    const target = lastActive || document.getElementById('user-input-area');
+    target.appendChild(s);
+    userStats.totalChanges++;
+}
+
+/* 31. 数式入力：ルート */
+function addRoot() {
+    const w = document.createElement('span');
+    w.className = 'root-wrap';
+    w.innerHTML = '<span class="root-symbol">√</span><span class="root-content" contenteditable="true"></span>';
+
+    // 分数の分子・分母を選択中なら、その中にルートを入れる
+    const target = lastActive || document.getElementById('user-input-area');
+    target.appendChild(w);
+
+    updateFocus(w.querySelector('.root-content'));
+    userStats.totalChanges++;
+}
+
+/* 32. 数式入力：分数 */
+function addFrac() {
+    const f = document.createElement('span');
+    f.className = 'frac';
+    f.innerHTML = '<span class="num" contenteditable="true"></span><span class="den" contenteditable="true"></span>';
+
+    // ルート内や分数内を選択中なら、その中に分数を入れる
+    const target = lastActive || document.getElementById('user-input-area');
+    target.appendChild(f);
+
+    updateFocus(f.querySelector('.num'));
+    userStats.totalChanges++;
+}
+
+/* 33. 数式入力：削除 */
+function backspace() {
+    const target = lastActive || document.getElementById('user-input-area');
+
+    if (target.lastChild) {
+        target.removeChild(target.lastChild);
+        userStats.backspaceCount++;
+        return;
     }
 
-    function closeFeedback() {
-        document.getElementById('feedback-overlay').style.display = "none";
-        document.getElementById('next-btn').style.display = "none";
+    const parentBlock = lastActive ? lastActive.closest('.root-wrap, .frac') : null;
+    if (parentBlock) {
+        updateFocus(null);
+        parentBlock.remove();
+        userStats.backspaceCount++;
+    }
+}
+
+/* 34. 数式入力：リセット */
+function clearAll() {
+    const area = document.getElementById('user-input-area');
+    area.replaceChildren();
+    lastActive = null;
+    updateFocus(null);
+}
+
+/* 35. 数式入力：分数・ルート内のフォーカス */
+function updateFocus(el) {
+    document.querySelectorAll('.num, .den, .root-content').forEach(f => f.classList.remove('active-in'));
+    lastActive = el;
+    if (el) el.classList.add('active-in');
+}
+
+/* 36. 数式入力：分数の分母へ移動 */
+function moveNext() {
+    if (!lastActive) {
+        updateFocus(null);
+        return;
+    }
+
+    // 分子そのもの、または分子の中にあるルート・分数を選択している場合も、分母へ移動する
+    const currentNumerator = lastActive.classList.contains('num')
+        ? lastActive
+        : lastActive.closest('.num');
+
+    if (currentNumerator) {
+        const frac = currentNumerator.closest('.frac');
+        if (frac) {
+            const denominator = frac.querySelector('.den');
+            updateFocus(denominator);
+            return;
+        }
+    }
+
+    // 分子以外にいる場合は、通常入力欄へ戻す
+    updateFocus(null);
+}
+
+/* 37. クリックで分数・ルート内にフォーカス */
+document.addEventListener('click', function(e) {
+    const target = e.target.closest('.num, .den, .root-content');
+    if (target) {
+        updateFocus(target);
+    }
+});
+
+/* 38. 回答判定 */
+function handleAnswer(isTimeout = false) {
+    clearInterval(timerInterval);
+
+    const q = masterData[gameState.mode][currentIdx];
+    const userAnsRaw = getFormulaText(document.getElementById('user-input-area'));
+    const userAns = (q.prefix || "") + userAnsRaw;
+    const timeTaken = (Date.now() - questionStartTime) / 1000;
+    const isCorrect = !isTimeout && userAnsRaw !== "" && (normalizeAnswer(userAns) === normalizeAnswer(q.answer));
+
+    // ポイント計算
+    const gainedPoint = calculatePoint(q, isCorrect, timeTaken);
+
+    // 合計ポイント加算
+    userStats.totalPoint += gainedPoint;
+    userStats.lastGainedPoint = gainedPoint;
+
+    const answerLog = {
+        mode: gameState.mode,
+        id: q.id,
+        q: q.q,
+        unit: q.unit,
+        lv: q.difficulty,
+        correctAns: q.answer,
+        userAns: userAns,
+        isCorrect: isCorrect,
+        time: timeTaken,
+        backspaces: userStats.backspaceCount,
+        isTimeout: isTimeout,
+
+        // ポイント保存
+        point: gainedPoint
+    };
+
+    userStats.answers.push(answerLog);
+    allResults[gameState.mode].push(answerLog);
+
+    showAnswerEffect(isCorrect, isTimeout);
+}
+/* 39. 答えの正規化 */
+function normalizeAnswer(s) {
+    return String(s)
+        .replace(/[！-～]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+        .replace(/[－―ー−‐]/g, "-")
+        .replace(/[＝]/g, "=")
+        .replace(/[π]/g, "pi")
+        .replace(/\s/g, "")
+        .toLowerCase();
+}
+
+/* 40. 正解・不正解演出 */
+function showAnswerEffect(isCorrect, isTimeout) {
+    const effect = document.getElementById('overlay-effect');
+
+    if (isCorrect) {
+        userStats.totalCorrect++;
+        userStats.combo++;
+        userStats.maxCombo = Math.max(userStats.maxCombo, userStats.combo);
+        effect.innerText = `正解！✨\n+${userStats.lastGainedPoint}pt`;
+        effect.style.color = "#2ed573";
+    } else {
+        userStats.combo = 0;
+        effect.innerText = isTimeout ? "TIME UP! ⏰" : "惜しい！ 💧";
+        effect.style.color = "#ff4757";
+    }
+
+    document.getElementById('combo-count').innerText = `${userStats.combo}連勝！`;
+    effect.style.display = "flex";
+
+    setTimeout(() => {
+        effect.style.display = "none";
+        userStats.backspaceCount = 0;
         currentIdx++;
-        if(currentIdx < 10) loadQuestion(); else showResult();
+
+        if (currentIdx < masterData[gameState.mode].length) {
+            loadQuestion();
+        } else {
+            finalizeQuiz();
+        }
+    }, 1200);
+}
+/* 41. 数式をテキストに変換 */
+function getFormulaText(node) {
+    let t = "";
+
+    node.childNodes.forEach(c => {
+        if (c.nodeType === 3) {
+            t += c.textContent;
+        } else if (c.classList && c.classList.contains('frac')) {
+            t += `(${getFormulaText(c.querySelector('.num'))})/(${getFormulaText(c.querySelector('.den'))})`;
+        } else if (c.classList && c.classList.contains('root-wrap')) {
+            t += `√(${getFormulaText(c.querySelector('.root-content'))})`;
+        } else if (c.tagName === 'SUP') {
+            t += `^2`;
+        } else {
+            t += getFormulaText(c);
+        }
+    });
+
+    return t;
+}
+
+/* 42. 結果表示 */
+function finalizeQuiz() {
+    showScreen('screen-result');
+
+    const ans = allResults[gameState.mode];
+    const correctCount = ans.filter(a => a.isCorrect).length;
+    const rate = (correctCount / ans.length) * 100;
+    const avgTime = (ans.reduce((s, a) => s + a.time, 0) / ans.length).toFixed(1);
+    const weakUnits = [...new Set(ans.filter(a => !a.isCorrect).map(a => a.unit))];
+
+    let title = "集中チャレンジャー";
+    let comment = "少し時間はかかっていますが、丁寧に確認できています。";
+
+    if (gameState.mode === "bonus") {
+        title = "応用チャレンジャー";
+        comment = "応用問題に挑戦できています。考える力を伸ばす練習として良い取り組みです。";
+    } else if (gameState.mode === "flash") {
+        title = "瞬発チャレンジャー";
+        comment = "短時間で答える練習に取り組めています。反応速度と基礎の定着を見ることができます。";
+    } else if (rate === 100 && avgTime < 5) {
+        title = "閃光アンサー";
+        comment = "驚異的なスピードと正確さです！完全にマスターしています。";
+    } else if (rate >= 80) {
+        title = "正確王";
+        comment = "正確に解けています。次はスピードアップを目指しましょう。";
+    } else if (userStats.totalChanges < 15) {
+        title = "慎重マスター";
+        comment = "入力し直しが少なく、迷わず解けています。";
+    } else if (ans.some(a => !a.isCorrect && a.unit === "正負の数")) {
+        title = "今日の成長株";
+        comment = "符号の問題でミスが出やすい傾向があります。";
     }
 
-    function showResult() {
-        document.getElementById('test-wrapper').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'block';
-        document.getElementById('final-name').innerText = userName;
-        document.getElementById('res-score').innerText = score;
-        let ss = Math.floor(score * 4 + 30); // 簡易偏差値
-        document.getElementById('final-ss').innerText = ss;
-        if(ss < 60) document.getElementById('offer').style.display = 'block';
+    document.getElementById('res-title').innerText = title;
+    document.getElementById('res-rate').innerText = Math.round(rate) + "%";
+    document.getElementById('res-time').innerText = avgTime + "s";
+    document.getElementById('res-combo').innerText = userStats.maxCombo;
+    document.getElementById('res-weak').innerText = weakUnits.join(", ") || "なし";
+    document.getElementById('ai-comment').innerText = comment;
+
+    // 合計ポイント表示
+    document.getElementById('final-rank').innerText = userStats.totalPoint;
+
+    sendResultToGAS();
+}
+/* 49. 追加モードへ切り替え */
+async function switchMode(newMode) {
+    gameState.mode = newMode;
+    gameState.index = 0;
+    currentIdx = 0;
+
+    userStats.combo = 0;
+    userStats.maxCombo = 0;
+    userStats.backspaceCount = 0;
+    userStats.totalChanges = 0;
+
+    // 応用問題は別ポイント
+    if (newMode === "bonus") {
+        userStats.totalPoint = 0;
+        userStats.lastGainedPoint = 0;
+
+        try {
+            const params = new URLSearchParams({
+                mode: "questions",
+                subject: currentSubject,
+                lecture: currentLecture,
+                unit: currentUnit,
+                quizMode: "bonus"
+            });
+
+            const res = await fetch(`${GAS_URL}?${params.toString()}`);
+            const data = await res.json();
+
+            const questions = data.questions || [];
+
+            if (questions.length === 0) {
+                alert("応用問題データが見つかりませんでした");
+                return;
+            }
+
+            masterData.bonus = questions;
+            allResults.bonus = [];
+
+        } catch (e) {
+            console.error(e);
+            alert("応用問題取得エラー");
+            return;
+        }
     }
+
+    document.getElementById('combo-count').innerText = "0連勝！";
+    showScreen('screen-question');
+    loadQuestion();
+}
+/* 51. フラッシュカード開始 */
+async function startFlashCards() {
+    flashState.index = 0;
+    flashState.viewed = [];
+
+    try {
+        const params = new URLSearchParams({
+            mode: "flashcards",
+            subject: currentSubject,
+            lecture: currentLecture,
+            unit: currentUnit
+        });
+
+        const res = await fetch(`${GAS_URL}?${params.toString()}`);
+        const data = await res.json();
+
+        const cards = data.cards || data || [];
+
+        if (!cards || cards.length === 0) {
+            alert("フラッシュカードが見つかりませんでした");
+            return;
+        }
+
+        flashCardData = cards;
+
+    } catch (e) {
+        console.error(e);
+        alert("フラッシュカード取得エラー");
+        return;
+    }
+
+    showScreen('screen-flash');
+    loadFlashCard();
+}
+
+/* 52. フラッシュカード表示 */
+function loadFlashCard() {
+    const cards = flashCardData;
+    const card = cards[flashState.index];
+
+    document.getElementById('flash-count').innerText =
+        `${flashState.index + 1} / ${cards.length}`;
+
+    document.getElementById('flash-card-text').innerText =
+        `【${card.title}】\n${card.content}\n例：${card.example}`;
+
+    allResults.flash.push({
+        mode: "flash",
+        subject: currentSubject,
+        lecture: currentLecture,
+        unit: currentUnit,
+        title: card.title,
+        content: card.content,
+        example: card.example,
+        viewedAt: new Date().toLocaleString()
+    });
+}
+
+/* 54. 次のフラッシュカード */
+function nextFlashCard() {
+    const cards = flashCardData;
+
+    flashState.index++;
+
+    if (flashState.index >= cards.length) {
+        flashState.index = 0;
+    }
+
+    loadFlashCard();
+}/* 55. ポイント計算 */
+function calculatePoint(q, isCorrect, timeTaken) {
+    if (!isCorrect) return 0;
+
+    let point = 100;
+
+    // スピードボーナス
+    if (timeTaken <= 10) point += 50;
+    else if (timeTaken <= 20) point += 30;
+    else if (timeTaken <= 30) point += 10;
+
+    // 全国正解率ボーナス
+    const rateText = document.getElementById('national-rate').innerText;
+    const nationalRate = parseInt(rateText);
+
+    if (!isNaN(nationalRate)) {
+        if (nationalRate < 30) point += 80;
+        else if (nationalRate < 50) point += 50;
+        else if (nationalRate < 70) point += 20;
+    }
+
+    return point;
+}
+/* 43. GAS送信 */
+function sendResultToGAS() {
+    if (!GAS_URL) return;
+
+    const currentAnswers = allResults[gameState.mode];
+    const correctCount = currentAnswers.filter(a => a.isCorrect).length;
+    const accuracy = currentAnswers.length > 0
+        ? Math.round((correctCount / currentAnswers.length) * 100)
+        : 0;
+
+    const avgTime = currentAnswers.length > 0
+        ? (currentAnswers.reduce((s, a) => s + a.time, 0) / currentAnswers.length).toFixed(1)
+        : "0.0";
+
+    const firstAnswer = currentAnswers[0] || {};
+
+    const payload = {
+        fullname: userStats.fullname,
+        nickname: userStats.nickname,
+        grade: userStats.grade,
+
+        mode: gameState.mode,
+        subject: "math",
+        lecture: "正負の数",
+        unit: firstAnswer.unit || "正負の数",
+
+        totalPoint: userStats.totalPoint,
+        accuracy: accuracy,
+        avgTime: avgTime,
+        maxCombo: userStats.maxCombo,
+
+        answers: currentAnswers,
+        timestamp: new Date().toLocaleString()
+    };
+
+    fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify(payload)
+    });
+}
+/* 44. 全国正解率取得 */
+function getNationalCorrectRate(questionId) {
+    const rateEl = document.getElementById('national-rate');
+    rateEl.innerText = "集計中...";
+
+    fetch(GAS_URL + "?mode=rate&qid=" + encodeURIComponent(questionId))
+        .then(res => res.json())
+        .then(data => {
+            rateEl.innerText = (data.correctRate ?? "--") + "%";
+        })
+        .catch(() => {
+            rateEl.innerText = "--%";
+        });
+}
+
+/* 44-2. ランキング表示 */
+async function showRanking() {
+    showScreen('screen-ranking');
+
+    const listEl = document.getElementById('ranking-full-list');
+    listEl.innerText = "読み込み中...";
+
+    try {
+        const params = new URLSearchParams({
+            mode: "ranking",
+            subject: currentSubject,
+            lecture: currentLecture,
+            unit: currentUnit
+        });
+
+        const res = await fetch(`${GAS_URL}?${params.toString()}`);
+        const ranking = await res.json();
+
+        if (!ranking || ranking.length === 0) {
+            listEl.innerText = "まだランキングデータがありません。";
+            return;
+        }
+
+        listEl.innerHTML = ranking.map(item => {
+            const medal =
+                item.rank === 1 ? "🥇" :
+                item.rank === 2 ? "🥈" :
+                item.rank === 3 ? "🥉" :
+                `${item.rank}位`;
+
+            return `
+                <div style="padding:8px 0; border-bottom:1px dashed #ddd;">
+                    <b>${medal} ${item.nickname}</b><br>
+                    <span>${item.point}pt（通常:${item.normalPoint} / 応用:${item.bonusPoint}）</span>
+                </div>
+            `;
+        }).join("");
+
+    } catch (e) {
+        console.error(e);
+        listEl.innerText = "ランキング取得エラー";
+    }
+}
+/* 45. 画面切り替え */
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+}
 </script>
 </body>
 </html>
