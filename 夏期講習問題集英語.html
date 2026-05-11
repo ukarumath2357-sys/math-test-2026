@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>夏期講習：英語クイズBATTLE🌟</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* =========================================
+           01. 基本設定
+           ========================================= */
+        body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #f4f6ff; margin: 0; padding: 0; display: flex; justify-content: center; min-height: 100vh; color: var(--text); -webkit-text-size-adjust: 100%; }
+
+        /* =========================================
+           02. 色設定
+           ========================================= */
+        :root {
+            --soft-blue: #9bb1ff;
+            --soft-pink: #ff9fb2;
+            --soft-yellow: #fdfdbd;
+            --soft-green: #a8e6cf;
+            --white: #ffffff;
+            --text: #2f3542;
+        }
+
+        /* =========================================
+           03. 全体レイアウト
+           ========================================= */
+        .app-container { width: 100%; max-width: 500px; background: var(--white); position: relative; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .screen { display: none; padding: 20px; box-sizing: border-box; min-height: 100vh; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .active { display: flex; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* =========================================
+           04. 共通ボタン
+           ========================================= */
+        .btn-round { background: var(--soft-pink); color: white; padding: 15px 30px; font-size: 20px; font-weight: 800; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 6px 0 #eb879b; transition: 0.1s; margin-top: 10px; width: 90%; }
+        .btn-round:active { transform: translateY(4px); box-shadow: 0 2px 0 #eb879b; }
+        .btn-bonus { background: var(--soft-blue); box-shadow: 0 6px 0 #8096e6; }
+        .btn-flash { background: var(--soft-green); color: var(--text); box-shadow: 0 6px 0 #8ad1b7; }
+
+        /* =========================================
+           05. スタート画面デザイン
+           ========================================= */
+        .title-area { font-size: 28px; font-weight: 900; color: var(--soft-blue); margin-bottom: 20px; }
+        .name-input { width: 85%; padding: 15px; font-size: 18px; border: 4px solid var(--soft-blue); border-radius: 20px; text-align: center; outline: none; background: #fff; margin-bottom: 10px; font-family: inherit; font-weight: bold; }
+        select.name-input { appearance: none; -webkit-appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%239bb1ff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 15px top 50%; background-size: 15px auto; }
+
+        /* =========================================
+           06. 問題画面デザイン
+           ========================================= */
+        .header-panel { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .q-tag { background: var(--soft-blue); color: white; padding: 5px 15px; border-radius: 15px; font-size: 14px; font-weight: bold; }
+        .correct-rate-circle { width: 65px; height: 65px; border-radius: 50%; background: linear-gradient(135deg,#ffd166,#ff9f1c); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .rate-label { font-size: 8px; font-weight: 700; }
+        #national-rate { font-size: 16px; font-weight: 900; }
+        .timer-container { width: 100%; height: 12px; background: #eee; border-radius: 6px; overflow: hidden; margin-bottom: 15px; }
+        .timer-fill { width: 100%; height: 100%; background: var(--soft-pink); transition: width 0.1s linear; }
+        .question-box { width: 100%; background: #fdfdfd; border: 3px solid #eef2f3; border-radius: 20px; padding: 20px; box-sizing: border-box; margin-bottom: 15px; min-height: 100px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; line-height: 1.4; word-break: break-word; }
+        #english-ui-container { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+        /* =========================================
+           07. 英語4択UI
+           ========================================= */
+        .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+        .btn-choice { background: #fff; border: 3px solid var(--soft-blue); border-radius: 15px; padding: 15px 10px; font-size: 18px; font-weight: bold; color: var(--text); cursor: pointer; transition: 0.1s; box-shadow: 0 4px 0 #ccd7ff; word-break: break-word; }
+        .btn-choice:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; background: #f0f4ff; }
+
+        /* =========================================
+           08. 英語並び替えUI
+           ========================================= */
+        .order-answer-area { width: 100%; min-height: 60px; background: #fff; border: 3px dashed var(--soft-pink); border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-start; box-sizing: border-box; }
+        .order-word-pool { width: 100%; min-height: 60px; background: #eef5ff; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; box-sizing: border-box; }
+        .order-word { background: var(--white); border: 2px solid var(--soft-blue); padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 18px; cursor: pointer; box-shadow: 0 3px 0 #ccd7ff; user-select: none; transition: 0.1s; }
+        .order-word:active { transform: translateY(3px); box-shadow: 0 0 0 transparent; }
+
+        /* =========================================
+           09. 英語テキスト入力UI
+           ========================================= */
+        .text-input-field { width: 100%; padding: 20px; font-size: 22px; border: 4px solid var(--soft-blue); border-radius: 15px; text-align: center; outline: none; box-sizing: border-box; margin-bottom: 15px; font-family: 'Times New Roman', serif; font-weight: bold; }
+        .text-input-field:focus { border-color: var(--soft-pink); background: #fffafb; }
+
+        /* =========================================
+           10. 結果画面デザイン
+           ========================================= */
+        .result-card { background: var(--soft-blue); color: white; padding: 20px; border-radius: 25px; width: 100%; margin-bottom: 15px; box-sizing: border-box; }
+        .title-badge { background: var(--soft-yellow); color: var(--text); padding: 10px 30px; border-radius: 40px; font-size: 24px; font-weight: 900; margin-bottom: 15px; display: inline-block; box-shadow: 0 4px 0 #e6e6a0; }
+        .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+        .data-item { background: rgba(255,255,255,0.2); padding: 8px; border-radius: 12px; }
+
+        /* =========================================
+           11. 正解・不正解演出
+           ========================================= */
+        .overlay-effect { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; display: none; align-items: center; justify-content: center; background: rgba(255,255,255,0.95); font-size: 60px; font-weight: 900; text-align: center; white-space: pre-wrap; }
+    </style>
+</head>
+
+<body>
+<div class="app-container">
+  <!-- =========================================
+     12. スタート画面
+     ========================================= -->
+<div id="screen-start" class="screen active">
+    <div class="title-area">🌟 夏期講習 🌟<br>英語クイズBATTLE</div>
+
+    <input type="text" id="user-fullname" class="name-input" placeholder="フルネーム">
+
+    <input type="text" id="user-nickname" class="name-input" placeholder="ニックネーム">
+
+    <div style="font-size:13px; color:#666; margin-top:-2px; margin-bottom:10px;">
+        ※ニックネームはランキングに表示されます
+    </div>
+
+    <select id="user-grade" class="name-input">
+        <option value="中2">中学2年生</option>
+        <option value="中3">中学3年生</option>
+    </select>
+
+    <button class="btn-round" onclick="goLessonSelect()">単元を選ぶ 🚀</button>
+</div>
+
+<!-- 12-2. 単元選択画面 -->
+<div id="screen-lesson-select" class="screen">
+    <div class="title-area" style="font-size:24px;">英語の単元を選ぼう</div>
+
+    <button class="btn-round" onclick="selectLesson('be動詞','be動詞')">
+        第1講：be動詞
+    </button>
+
+    <button class="btn-round" style="background:#ced6e0; box-shadow:0 6px 0 #a4b0be;" disabled>
+        第2講：一般動詞（準備中）
+    </button>
+
+    <button class="btn-round" style="background:#ced6e0; box-shadow:0 6px 0 #a4b0be;" disabled>
+        第3講：過去形（準備中）
+    </button>
+
+    <button class="btn-round" onclick="showScreen('screen-start')" style="background:#2f3542; box-shadow:0 6px 0 #111;">
+        戻る
+    </button>
+</div>
+
+    <!-- =========================================
+         13. カウントダウン画面
+         ========================================= -->
+    <div id="screen-countdown" class="screen">
+        <div id="countdown-num" style="font-size: 120px; color: var(--soft-blue); font-weight: 900;">3</div>
+        <div id="loading-text" style="font-size: 14px; color: #888; margin-top: 15px; font-weight: bold;">問題を準備中...</div>
+    </div>
+
+    <!-- =========================================
+         14. 問題画面
+         ========================================= -->
+    <div id="screen-question" class="screen">
+        <div class="question-top-area" style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="text-align: left;">
+                <div id="q-number" class="q-tag">第 1 問</div>
+                <div id="combo-count" style="color:var(--soft-pink); font-weight:900; margin-top:6px;">0連勝！</div>
+            </div>
+            <div class="correct-rate-circle">
+                <div class="rate-label">全国正解率</div>
+                <div id="national-rate">--%</div>
+            </div>
+        </div>
+        <div class="timer-container"><div id="timer-bar" class="timer-fill"></div></div>
+        
+        <div class="question-box">
+            <span id="ans-prefix" style="color: #ff4757; margin-right: 5px;"></span>
+            <span id="q-text"></span>
+        </div>
+
+        <div id="english-ui-container">
+            <!-- JSでボタンや入力欄が生成されます -->
+        </div>
+    </div>
+
+<!-- =========================================
+     15. 結果画面
+     ========================================= -->
+<div id="screen-result" class="screen">
+
+    <h2 style="margin:0;">診断レポート</h2>
+
+    <div class="title-badge" id="res-title">
+        称号獲得！
+    </div>
+
+    <!-- レポートカード -->
+    <div class="result-card">
+
+        <div class="data-grid">
+
+            <div class="data-item">
+                <span>正答率</span><br>
+                <b id="res-rate">0%</b>
+            </div>
+
+            <div class="data-item">
+                <span>平均時間</span><br>
+                <b id="res-time">0.0s</b>
+            </div>
+
+            <div class="data-item">
+                <span>最大連勝</span><br>
+                <b id="res-combo">0</b>
+            </div>
+
+            <div class="data-item">
+                <span>苦手単元</span><br>
+                <b id="res-weak" style="font-size:12px;">
+                    なし
+                </b>
+            </div>
+
+        </div>
+
+        <div id="ai-comment"
+             style="
+                margin-top:15px;
+                font-size:14px;
+                background:rgba(255,255,255,0.2);
+                padding:10px;
+                border-radius:10px;
+                text-align:left;
+             ">
+        </div>
+
+    </div>
+
+    <!-- ポイント -->
+    <div style="
+        width:100%;
+        background:var(--soft-yellow);
+        padding:15px;
+        border-radius:20px;
+        box-sizing:border-box;
+        margin-bottom:15px;
+    ">
+
+        <div style="font-weight:900; font-size:22px;">
+            🏆 今回の獲得ポイント：
+            <span id="total-pt">0</span>pt
+        </div>
+
+        <div id="ranking-list"
+             style="
+                font-size:14px;
+                margin-top:10px;
+                text-align:left;
+             ">
+        </div>
+
+        <!-- ランキング -->
+        <button class="btn-round"
+                onclick="showRanking()"
+                style="
+                    margin-top:15px;
+                    background:var(--soft-blue);
+                    box-shadow:0 6px 0 #7fb7e8;
+                ">
+            🏆 ランキングを見る
+        </button>
+
+    </div>
+
+    <!-- 応用問題 -->
+    <button class="btn-round"
+            onclick="switchMode('bonus')"
+            style="
+                background:var(--soft-pink);
+                box-shadow:0 6px 0 #e17fa1;
+            ">
+        🌟 応用問題に挑戦！
+    </button>
+
+    <!-- フラッシュカード -->
+    <button class="btn-round"
+            onclick="startFlashCards()"
+            style="
+                background:var(--soft-green);
+                box-shadow:0 6px 0 #8fd99a;
+            ">
+        ⚡ フラッシュカードを見る！
+    </button>
+
+    <!-- もう一度 -->
+    <button class="btn-round"
+            onclick="location.reload()"
+            style="
+                background:#2f3542;
+                box-shadow:0 6px 0 #111;
+            ">
+        もう一度遊ぶ
+    </button>
+</div>
+
+<!-- 15-2. ランキング画面 -->
+<div id="screen-ranking" class="screen">
+    <h2>🏆 ランキング TOP30</h2>
+    <div class="result-card" style="background:var(--soft-yellow); color:var(--text);">
+        <div id="ranking-full-list">読み込み中...</div>
+    </div>
+    <button class="btn-round" onclick="showScreen('screen-result')" style="background:#2f3542; box-shadow:0 6px 0 #111;">
+        結果画面へ戻る
+    </button>
+</div>
+
+<!-- 15-3. フラッシュカード画面 -->
+<div id="screen-flash" class="screen">
+    <div class="title-area">⚡ フラッシュカード</div>
+    <div id="flash-count" class="q-tag">1 / 5</div>
+    <div class="result-card" style="background:var(--soft-yellow); color:var(--text);">
+        <div id="flash-card-text" style="background:white; border-radius:18px; padding:24px; font-size:22px; line-height:1.8; font-weight:700;"></div>
+    </div>
+    <button class="btn-round" onclick="nextFlashCard()">次の要点へ</button>
+    <button class="btn-round" onclick="showScreen('screen-result')" style="background:#2f3542; box-shadow:0 6px 0 #111;">
+        結果画面へ戻る
+    </button>
+</div>
+
+   <!-- =========================================
+         16. オーバーレイ
+         ========================================= -->
+    <div id="overlay-effect" class="overlay-effect"></div>
+</div>
+
+<script>
+/* =========================================
+   17. GAS設定
+   ========================================= */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyHsI3nfBLGx4tqT6mTyIazYbBLCAOpywwJbI3sAw3gaNC_1diYUPZbVmqRS01xnfbgvA/exec";
+
+/* =========================================
+   18. 状態管理
+   ========================================= */
+let masterData = { normal: [], bonus: [] };
+let gameState = { mode: "normal", index: 0, subject: "english", lecture: "be動詞", unit: "be動詞" };
+let allResults = { normal: [], bonus: [], flash: [] }; 
+let userStats = { fullname: "", nickname: "", grade: "", totalPoint: 0, combo: 0, maxCombo: 0 };
+let questionStartTime, timerInterval;
+
+// 非同期管理用フラグ
+let fetchStatus = { completed: false, success: false };
+let countdownCompleted = false;
+
+/* 18-2. 単元選択画面へ */
+function goLessonSelect() {
+    userStats.fullname = document.getElementById('user-fullname').value.trim();
+    userStats.nickname = document.getElementById('user-nickname').value.trim();
+    userStats.grade = document.getElementById('user-grade').value;
+
+    if (!userStats.fullname || !userStats.nickname) {
+        alert("フルネームとニックネームを入れてね！");
+        return;
+    }
+
+    showScreen('screen-lesson-select');
+}
+
+/* 18-3. 単元選択 */
+function selectLesson(lecture, unit) {
+    gameState.subject = "english";
+    gameState.lecture = lecture;
+    gameState.unit = unit;
+
+    gameState.mode = "normal";
+    gameState.index = 0;
+
+    allResults.normal = [];
+    userStats.totalPoint = 0;
+    userStats.combo = 0;
+    userStats.maxCombo = 0;
+
+    startCountdown();
+}
+
+/* =========================================
+   19. スタート処理
+   ========================================= */
+function startCountdown() {
+    if (!userStats.fullname || !userStats.nickname) {
+        alert("フルネームとニックネームを入れてね！");
+        return;
+    }
+
+    document.getElementById('countdown-num').innerText = "5";
+    document.getElementById('loading-text').innerText = "問題を準備中...";
+    document.getElementById('loading-text').style.display = "block";
+    showScreen('screen-countdown');
+
+    fetchStatus = { completed: false, success: false };
+    countdownCompleted = false;
+
+    let c = 5;
+
+    const timer = setInterval(() => {
+        c--;
+
+        if (c > 0) {
+            document.getElementById('countdown-num').innerText = c;
+        } else if (c === 0) {
+            document.getElementById('countdown-num').innerText = "GO!!";
+        } else {
+            clearInterval(timer);
+            countdownCompleted = true;
+            tryStartQuiz();
+        }
+    }, 1000);
+
+    fetchQuestionsFromGAS();
+}/* =========================================
+   20. 問題取得
+   ========================================= */
+async function fetchQuestionsFromGAS() {
+    try {
+        const params = new URLSearchParams({
+            mode: "questions",
+            subject: gameState.subject,
+            lecture: gameState.lecture,
+            unit: gameState.unit,
+            quizMode: gameState.mode
+        });
+        
+        const res = await fetch(`${GAS_URL}?${params.toString()}`);
+        const data = await res.json();
+        
+        const questions = data.questions || [];
+        
+        if (questions.length === 0) {
+            alert("問題データが見つかりませんでした。");
+            showScreen('screen-start');
+            return;
+        }
+        
+        masterData[gameState.mode] = questions;
+        fetchStatus.success = true;
+        document.getElementById('loading-text').innerText = "準備完了！";
+        
+    } catch (error) {
+        alert("問題取得エラーが発生しました。");
+        showScreen('screen-start');
+    } finally {
+        fetchStatus.completed = true;
+        tryStartQuiz();
+    }
+}
+
+/* =========================================
+   21. クイズ開始
+   ========================================= */
+function tryStartQuiz() {
+    if (countdownCompleted && fetchStatus.completed) {
+        if (fetchStatus.success) startQuiz();
+    } else if (countdownCompleted && !fetchStatus.completed) {
+        document.getElementById('countdown-num').innerText = "Wait...";
+    }
+}
+
+function startQuiz() { 
+    showScreen('screen-question'); 
+    loadQuestion(); 
+}
+
+/* =========================================
+   22. 問題読み込み
+   ========================================= */
+function loadQuestion() {
+    const qList = masterData[gameState.mode];
+    const q = qList[gameState.index];
+    document.getElementById('q-number').innerText = `Q ${gameState.index + 1} / ${qList.length}`;
+    document.getElementById('q-text').innerText = q.q;
+    document.getElementById('ans-prefix').innerText = q.prefix ? q.prefix + " " : "";
+    
+    getNationalRate(q.id, q.difficulty || 70);
+    renderEnglishUI(q);
+
+    questionStartTime = Date.now();
+    startTimer(gameState.mode === 'flash' ? 5 : 60);
+}
+
+/* =========================================
+   23. 英語UI描画
+   ========================================= */
+function renderEnglishUI(q) {
+    const container = document.getElementById('english-ui-container');
+    container.innerHTML = ''; // クリア
+
+    /* =========================================
+       24. 4択問題処理
+       ========================================= */
+    if (q.answerType === 'choice') {
+        const choices = [q.choiceA, q.choiceB, q.choiceC, q.choiceD].filter(c => c && c.trim() !== "");
+        
+        const grid = document.createElement('div');
+        grid.className = 'choice-grid';
+        choices.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-choice';
+            btn.innerText = c;
+            btn.onclick = () => handleAnswer(c); 
+            grid.appendChild(btn);
+        });
+        container.appendChild(grid);
+
+    /* =========================================
+       25. 並び替え問題処理
+       ========================================= */
+    } else if (q.answerType === 'order') {
+        let words = [q.choiceA, q.choiceB, q.choiceC, q.choiceD].filter(c => c && c.trim() !== "");
+        
+        if (words.length === 1 && words[0].includes(',')) {
+            words = words[0].split(',').map(w => w.trim());
+        }
+        
+        words = words.sort(() => Math.random() - 0.5);
+
+        const answerArea = document.createElement('div');
+        answerArea.className = 'order-answer-area';
+        
+        const wordPool = document.createElement('div');
+        wordPool.className = 'order-word-pool';
+        
+        words.forEach(w => {
+            const span = document.createElement('span');
+            span.className = 'order-word';
+            span.innerText = w;
+            span.onclick = function() {
+                if (this.parentElement === wordPool) answerArea.appendChild(this);
+                else wordPool.appendChild(this);
+            };
+            wordPool.appendChild(span);
+        });
+
+        const submitBtn = document.createElement('button');
+        submitBtn.className = 'btn-round';
+        submitBtn.innerText = '回答する';
+        submitBtn.onclick = () => {
+            const userAns = Array.from(answerArea.children).map(el => el.innerText).join(' ');
+            handleAnswer(userAns);
+        };
+
+        container.appendChild(answerArea);
+        container.appendChild(wordPool);
+        container.appendChild(submitBtn);
+
+    /* =========================================
+       26. テキスト入力問題処理
+       ========================================= */
+    } else if (q.answerType === 'textInput' || !q.answerType) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'text-input-field';
+        input.placeholder = '英語で入力してね';
+        input.autocomplete = 'off';
+        
+        const submitBtn = document.createElement('button');
+        submitBtn.className = 'btn-round';
+        submitBtn.innerText = '回答する';
+        submitBtn.onclick = () => handleAnswer(input.value);
+
+        input.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') handleAnswer(input.value);
+        });
+
+        container.appendChild(input);
+        container.appendChild(submitBtn);
+        setTimeout(() => input.focus(), 100);
+    }
+}
+
+/* =========================================
+   27. タイマー
+   ========================================= */
+function startTimer(seconds) {
+    let r = seconds;
+    const bar = document.getElementById('timer-bar');
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        r -= 0.1;
+        bar.style.width = (r / seconds) * 100 + "%";
+        if (r <= 0) { clearInterval(timerInterval); handleAnswer("", true); }
+    }, 100);
+}
+
+/* =========================================
+   28. 回答判定
+   ========================================= */
+function handleAnswer(userAns, isTimeout = false) {
+    clearInterval(timerInterval);
+    const qList = masterData[gameState.mode];
+    const q = qList[gameState.index];
+    
+    if (isTimeout) userAns = "";
+
+    const timeTaken = (Date.now() - questionStartTime) / 1000;
+    
+    /* =========================================
+       29. 答えの正規化
+       ========================================= */
+    const normalize = (s) => String(s).toLowerCase().replace(/[.,!?]/g, '').replace(/\s+/g, '').trim();
+    const isCorrect = !isTimeout && userAns !== "" && (normalize(userAns) === normalize(q.answer));
+
+    const diff = q.difficulty || 70;
+    let point = isCorrect ? Math.max(50, Math.floor(100 - timeTaken * 2) + (diff < 50 ? 50 : 0)) : 0;
+    userStats.totalPoint += point;
+
+    allResults[gameState.mode].push({ id: q.id, q: q.q, unit: q.unit, correctAns: q.answer, userAns: userAns, isCorrect: isCorrect, time: timeTaken, point: point, isTimeout: isTimeout });
+
+    const effect = document.getElementById('overlay-effect');
+    if (isCorrect) { userStats.combo++; userStats.maxCombo = Math.max(userStats.maxCombo, userStats.combo); effect.innerHTML = `正解！ ✨<br><span style="font-size:30px;">+${point} pt</span>`; effect.style.color = "#2ed573"; }
+    else { userStats.combo = 0; effect.innerHTML = isTimeout ? "TIME UP! ⏰" : "惜しい！ 💧"; effect.style.color = "#ff4757"; }
+    document.getElementById('combo-count').innerText = `${userStats.combo}連勝！`;
+    effect.style.display = "flex";
+
+    const inputs = document.querySelectorAll('button, input');
+    inputs.forEach(el => el.disabled = true);
+
+    setTimeout(() => {
+        effect.style.display = "none";
+        gameState.index++;
+        if (gameState.index < qList.length) loadQuestion();
+        else finalizeQuiz();
+    }, 1200);
+}
+
+/* =========================================
+   30. 結果表示
+   ========================================= */
+function finalizeQuiz() {
+
+    document.querySelectorAll('button, input').forEach(el => {
+        el.disabled = false;
+    });
+
+    showScreen('screen-result');
+    const res = allResults[gameState.mode];
+    const correctCount = res.filter(r => r.isCorrect).length;
+    const rate = Math.round((correctCount / res.length) * 100);
+    const avgTime = (res.reduce((s, a) => s + a.time, 0) / res.length).toFixed(1);
+
+    document.getElementById('res-rate').innerText = rate + "%";
+    document.getElementById('res-time').innerText = avgTime + "s";
+    document.getElementById('res-combo').innerText = userStats.maxCombo;
+    document.getElementById('res-weak').innerText = [...new Set(res.filter(r => !r.isCorrect).map(r => r.unit))].join(", ") || "なし";
+    document.getElementById('total-pt').innerText = userStats.totalPoint;
+    document.getElementById('res-title').innerText = rate === 100 ? "👑 全問正解王" : "集中チャレンジャー";
+    
+    sendResultToGAS();
+}
+
+/* =========================================
+   31. GAS送信
+   ========================================= */
+function sendResultToGAS() {
+    if (!GAS_URL) return;
+    const currentResults = allResults[gameState.mode];
+    const rate = Math.round((currentResults.filter(r => r.isCorrect).length / currentResults.length) * 100);
+    const avgTime = (currentResults.reduce((s, a) => s + a.time, 0) / currentResults.length).toFixed(1);
+
+    const payload = {
+        fullname: userStats.fullname,
+        nickname: userStats.nickname,
+        grade: userStats.grade,
+        mode: gameState.mode,
+        subject: gameState.subject,
+        lecture: gameState.lecture,
+        unit: gameState.unit,
+        totalPoint: userStats.totalPoint,
+        accuracy: rate,
+        avgTime: avgTime,
+        maxCombo: userStats.maxCombo,
+        answers: currentResults,
+        timestamp: new Date().toLocaleString()
+    };
+
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) });
+}
+
+/* =========================================
+   32. 全国正解率取得
+   ========================================= */
+function getNationalRate(qid, defaultDiff) {
+    const el = document.getElementById('national-rate');
+    el.innerText = "--%";
+    fetch(`${GAS_URL}?mode=rate&qid=${qid}`)
+        .then(res => res.json())
+        .then(data => el.innerText = (data.correctRate || defaultDiff) + "%")
+        .catch(() => el.innerText = defaultDiff + "%");
+}
+
+/* =========================================
+   33. 応用問題切り替え
+   ========================================= */
+function switchMode(newMode) { 
+    gameState.mode = newMode; 
+    gameState.index = 0; 
+    userStats.combo = 0; 
+    startCountdown(); 
+}
+
+let flashCardData = [];
+let flashState = {
+    index: 0
+};
+
+async function showRanking() {
+    showScreen('screen-ranking');
+
+    const listEl = document.getElementById('ranking-full-list');
+    listEl.innerText = "読み込み中...";
+
+    const params = new URLSearchParams({
+        mode: "ranking",
+        subject: gameState.subject,
+        lecture: gameState.lecture,
+        unit: gameState.unit
+    });
+
+    try {
+        const res = await fetch(`${GAS_URL}?${params.toString()}`);
+        const ranking = await res.json();
+
+        if (!ranking || ranking.length === 0) {
+            listEl.innerText = "まだランキングデータがありません。";
+            return;
+        }
+
+        listEl.innerHTML = ranking.map(item => {
+            const medal =
+                item.rank === 1 ? "🥇" :
+                item.rank === 2 ? "🥈" :
+                item.rank === 3 ? "🥉" :
+                `${item.rank}位`;
+
+            return `
+                <div style="padding:8px 0; border-bottom:1px dashed #ddd;">
+                    <b>${medal} ${item.nickname}</b><br>
+                    <span>${item.point}pt（通常:${item.normalPoint} / 応用:${item.bonusPoint}）</span>
+                </div>
+            `;
+        }).join("");
+
+    } catch (e) {
+        listEl.innerText = "ランキング取得エラー";
+    }
+}
+
+async function startFlashCards() {
+    flashState.index = 0;
+
+ alert(
+      "subject=" + gameState.subject +
+      "\nlecture=" + gameState.lecture +
+      "\nunit=" + gameState.unit
+    );
+
+    const params = new URLSearchParams({
+        mode: "flashcards",
+        subject: gameState.subject,
+        lecture: gameState.lecture,
+        unit: gameState.unit
+    });
+
+    try {
+        const res = await fetch(`${GAS_URL}?${params.toString()}`);
+        const data = await res.json();
+
+        flashCardData = data.cards || [];
+
+        if (flashCardData.length === 0) {
+            alert("フラッシュカードが見つかりませんでした");
+            return;
+        }
+
+        showScreen('screen-flash');
+        loadFlashCard();
+
+    } catch (e) {
+        alert("フラッシュカード取得エラー");
+    }
+}
+
+function loadFlashCard() {
+    const card = flashCardData[flashState.index];
+
+    document.getElementById('flash-count').innerText =
+        `${flashState.index + 1} / ${flashCardData.length}`;
+
+    document.getElementById('flash-card-text').innerText =
+        `【${card.title}】\n${card.content}\n例：${card.example}`;
+}
+
+function nextFlashCard() {
+    flashState.index++;
+
+    if (flashState.index >= flashCardData.length) {
+        flashState.index = 0;
+    }
+
+    loadFlashCard();
+}
+
+/* =========================================
+   34. 画面切り替え
+   ========================================= */
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+    });
+
+    document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
