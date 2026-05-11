@@ -482,9 +482,11 @@
 
 <!-- 16. カウントダウン画面 -->
 <div id="screen-countdown" class="screen">
-    <div id="countdown-num" style="font-size: 120px; color: var(--soft-blue); font-weight: 900;">3</div>
+    <div id="countdown-num" style="font-size: 120px; color: var(--soft-blue); font-weight: 900;">5</div>
+    <div id="countdown-status" style="font-size:14px; color:#666; margin-top:10px;">
+        問題を準備中...
+    </div>
 </div>
-
     <!-- 17. 問題画面 -->
     <div id="screen-question" class="screen">
        <div class="question-top-area">
@@ -674,7 +676,7 @@
 </div>
 <script>
 /* 22. GAS設定 */
-const GAS_URL = "https://script.google.com/macros/s/AKfycby0f6ahYh1bthsZb0qDL6m9V34w3_v2EpqWKT52EYE7-PAHAQZp6vtTl43Q7f_wIVoX/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxQmm0-6liwpmZ3S1jkuhDMq3NSjXzfjhc6K6eNGaxfSRQpzJvNGUmayACDU5da59LVbw/exec";
 /* 46. 3モード問題データ */
 const masterData = {
     normal: [],
@@ -740,8 +742,13 @@ async function startCountdown() {
         return;
     }
 
-    try {
-        // GASから選択単元の通常問題を取得
+    // 先に画面を切り替える
+    document.getElementById('countdown-num').innerText = "5";
+    document.getElementById('countdown-status').innerText = "問題を準備中...";
+    showScreen('screen-countdown');
+
+    // 裏で問題取得を開始
+    const fetchPromise = (async () => {
         const params = new URLSearchParams({
             mode: "questions",
             subject: currentSubject,
@@ -756,37 +763,43 @@ async function startCountdown() {
         const questions = data.questions || [];
 
         if (questions.length === 0) {
-            alert("問題データが見つかりませんでした");
-            return;
+            throw new Error("問題データが見つかりませんでした");
         }
 
-        // GAS取得問題をセット
-        masterData.normal = questions;
+        return questions;
+    })();
 
-    } catch (e) {
-        console.error(e);
-        alert("問題取得エラー");
-        return;
+    let c = 4;
+
+    const timer = setInterval(async () => {
+
+    if (c === 0) {
+        document.getElementById('countdown-num').innerText = "GO!!";
+
+    } else if (c < 0) {
+        clearInterval(timer);
+
+        try {
+            const questions = await fetchPromise;
+            masterData.normal = questions;
+            document.getElementById('countdown-status').innerText = "";
+            startQuiz();
+
+        } catch (e) {
+            console.error(e);
+            alert(e.message || "問題取得エラー");
+            showScreen('screen-lesson-select');
+        }
+
+    } else {
+        document.getElementById('countdown-num').innerText = c;
     }
 
-    showScreen('screen-countdown');
+    c--;
 
-    let c = 3;
-
-    const timer = setInterval(() => {
-        c--;
-
-        if (c === 0) {
-            document.getElementById('countdown-num').innerText = "GO!!";
-        } else if (c < 0) {
-            clearInterval(timer);
-            startQuiz();
-        } else {
-            document.getElementById('countdown-num').innerText = c;
-        }
-
-    }, 1000);
+}, 1000);
 }
+
 /* 24-2. 単元選択画面へ */
 function goLessonSelect() {
     const fullname = document.getElementById('user-fullname').value.trim();
